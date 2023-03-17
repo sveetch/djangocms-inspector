@@ -1,0 +1,14 @@
+{
+    "_sveetch_djangoapp_version": "0.5.0",
+    "_template": "/home/emencia/Projects/Apps/Cookies-dev/Djangoapp",
+    "app_name": "djangocms_inspector",
+    "author_email": "sveetch@gmail.com",
+    "author_name": "David Thenon",
+    "author_username": "sveetch",
+    "enable_drf": "False",
+    "package_name": "djangocms-inspector",
+    "project_name": "DjangoCMS Inspector",
+    "project_short_description": "A set of tools to inspect a DjangoCMS project",
+    "pypi_username": "sveetch",
+    "version": "0.1.0"
+}
