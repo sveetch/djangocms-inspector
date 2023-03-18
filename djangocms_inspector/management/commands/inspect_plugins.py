@@ -12,7 +12,7 @@ import requests
 
 from django.core.management import BaseCommand, CommandError
 from django.db.models import Count
-from django.template import Context, Template
+from django.template import Context
 from django.template.loader import get_template
 
 from cms.models.pagemodel import Page
@@ -231,7 +231,7 @@ class Command(BaseCommand):
 
         self.print("   └── [{}] {}".format(title.language, title.title))
         self.print("            ├── Published: {}".format(
-            yes_or_no(not(title.publisher_is_draft))
+            yes_or_no(not title.publisher_is_draft)
         ))
         self.print("            └── URL: {}".format(url))
 
@@ -263,7 +263,7 @@ class Command(BaseCommand):
         self.print()
         self.print("{pk}. ({published}) {title}".format(
             pk=str(page.id).zfill(5),
-            published=yes_or_no(not(page.publisher_is_draft)),
+            published=yes_or_no(not page.publisher_is_draft),
             title=page,
         ))
 
@@ -279,7 +279,6 @@ class Command(BaseCommand):
             "creation": page.creation_date.isoformat(timespec="seconds"),
             "changed": page.changed_date.isoformat(timespec="seconds"),
             "login_required": page.login_required,
-            "reverse_id": page.reverse_id,
             "template": page.template,
             "in_navigation": page.in_navigation,
             "language_versions": [
@@ -407,7 +406,7 @@ class Command(BaseCommand):
         published_title_total = 0
         for page in page_payload["objects"]["pages"]:
             for title in page["language_versions"]:
-                if not(title["draft"]):
+                if not title["draft"]:
                     published_title_total += 1
 
         self.print("  - Total of titles {}".format(
@@ -429,13 +428,13 @@ class Command(BaseCommand):
             self.print("{i}. #{pk} ({published}) {title}".format(
                 i=page_index,
                 pk=str(page["page_id"]).zfill(5),
-                published=yes_or_no(not(page["draft"])),
+                published=yes_or_no(not page["draft"]),
                 title=page["main_title"],
             ))
 
             # Walk on every page titles
             for title in page["language_versions"]:
-                if not(title["draft"]):
+                if not title["draft"]:
                     batch_slot += 1
                     done_titles += 1
                     self.print("   └── [{}] {}".format(
@@ -443,7 +442,7 @@ class Command(BaseCommand):
                     ))
 
                     self.print("            ├── Published: {}".format(
-                        yes_or_no(not(title["draft"]))
+                        yes_or_no(not title["draft"])
                     ))
                     self.print("            └── URL: {}".format(title["url"]))
 
@@ -473,10 +472,10 @@ class Command(BaseCommand):
                         done_titles >= self.ping_batch and
                         batch_slot < published_title_total
                     ):
-                        self.print("💬 Ping batch pausing for {}s".format(self.ping_pause))
+                        msg = "💬 Ping batch pausing for {}s"
+                        self.print(msg.format(self.ping_pause))
                         time.sleep(self.ping_pause)
                         done_titles = 0
-
 
         self.print("📝 Writing ping dump to: {}".format(destination))
         destination.write_text(
@@ -524,7 +523,9 @@ class Command(BaseCommand):
         page_payload = self.reused_pages_dump or self.inspect(**options)
 
         # Either get pings payload from reused dump or proceed to payload generation
-        ping_payload = self.reused_pings_dump or self.ping(options["ping"], page_payload)
+        ping_payload = (
+            self.reused_pings_dump or self.ping(options["ping"], page_payload)
+        )
 
         # Proceed to dump only if not in reuse mode
         if not self.reused_pages_dump and options["dump"]:

@@ -1,6 +1,6 @@
 import datetime
 
-from django.template import TemplateSyntaxError, Library, loader
+from django.template import Library
 
 register = Library()
 

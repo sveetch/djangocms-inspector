@@ -8,7 +8,6 @@ User’s Guide
    :maxdepth: 2
 
    install.rst
-   django_app/index.rst
 
 
 Developer’s Guide
