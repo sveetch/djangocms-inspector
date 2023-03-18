@@ -153,6 +153,51 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 
 """
+Basic DjangoCMS and plugins configuration
+"""
+# Available page templates
+CMS_TEMPLATES = [
+    ("pages/free.html", "Free HTML"),
+    ("pages/single_column.html", "Single column"),
+]
+
+# Required to enable iframes used by CMS admin modals
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
+# Admin style needs to be before "django.contrib.admin" which we assume it's
+# always first in list
+INSTALLED_APPS.insert(0, "djangocms_admin_style")
+
+# Then we push the common cms stack
+INSTALLED_APPS.extend([
+    "easy_thumbnails",
+    "filer",
+    "mptt",
+    "cms",
+    "menus",
+    "treebeard",
+    "sekizai",
+    "djangocms_picture",
+    "djangocms_snippet",
+    "djangocms_text_ckeditor",
+])
+
+# Add CMS machinary
+MIDDLEWARE.extend([
+    "cms.middleware.utils.ApphookReloadMiddleware",
+    "cms.middleware.user.CurrentUserMiddleware",
+    "cms.middleware.page.CurrentPageMiddleware",
+    "cms.middleware.toolbar.ToolbarMiddleware",
+    "cms.middleware.language.LanguageCookieMiddleware",
+])
+
+TEMPLATES[0]["OPTIONS"]["context_processors"].extend([
+    "sekizai.context_processors.sekizai",
+    "cms.context_processors.cms_settings",
+])
+
+
+"""
 SPECIFIC BASE APPLICATIONS SETTINGS BELOW
 """
 from djangocms_inspector.settings import *  # noqa: E402,F401,F403

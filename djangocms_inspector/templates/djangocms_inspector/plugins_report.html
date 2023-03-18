@@ -1,0 +1,322 @@
+{% load djangocms_inspector %}{% get_pages_languages as enabled_pages_languages %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% spaceless %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>DjangoCMS inspection</title>
+
+        <meta name="robots" content="index, follow, all">
+        <meta name="description" content="{% block meta-description %}{% endblock meta-description %}">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    {% endspaceless %}
+    <style>
+      main {
+        padding-top: 60px;
+      }
+
+      table > thead > tr > th {
+        font-size: 0.7rem;
+      }
+
+      small.font-monospace {
+        font-size: 0.8rem;
+      }
+
+      h2 small {
+        font-size: 0.6em;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .item-title {
+        font-size: 0.8rem;
+      }
+
+      .page-items {
+        counter-reset: listCounter;
+      }
+
+      .item-page {
+        counter-increment: listCounter;
+      }
+
+      body[data-show-publishing="published"] [data-page-published="false"] {
+        display: none;
+      }
+
+      body[data-show-publishing="draft"] [data-page-published="true"] {
+        display: none;
+      }
+
+      /*
+      TODO: Selector method is broken for items in 'data-page-httpstatus="success"="both"'
+      body[data-show-httpstatus="success"] .item-page:not([data-page-httpstatus="success"]),
+      body[data-show-httpstatus="success"] .item-title:not([data-title-httpstatus="success"]) {
+        display: none;
+      }
+
+      body[data-show-httpstatus="error"] .item-page:not([data-page-httpstatus="error"]),
+      body[data-show-httpstatus="error"] .item-title:not([data-title-httpstatus="error"]) {
+        display: none;
+      }*/
+
+      {% for name, total in enabled_pages_languages.items %}
+      body[data-show-language="{{ name }}"] .item-title:not([data-title-language="{{ name }}"]) {
+        display: none;
+      }
+      {% endfor %}
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+    {% spaceless %}
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">DjangoCMS inspection</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-shrink-0" id="main-content">
+        <div class="container-fluid pt-4">
+            <h1 class="mb-4">{{ summaries.parameters.base_url }}<br><small class="text-muted">{{ summaries.parameters.created|iso_to_datetime|date:"SHORT_DATE_FORMAT" }}</small></h1>
+
+            <h2 class="mb-3">Page summary</h2>
+
+            <div class="search-filter d-flex flex-row justify-content-end mb-2">
+                {% comment %}<div class="btn-group btn-group-sm me-2" role="group" aria-label="HTTP status filter">
+                    <input type="radio" class="btn-check" name="httpstatus-filter" id="id_httpstatus-filter-success" value="success" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="id_httpstatus-filter-success">HTTP Success</label>
+
+                    <input type="radio" class="btn-check" name="httpstatus-filter" id="id_httpstatus-filter-error" value="error" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="id_httpstatus-filter-error">HTTP Error</label>
+
+                    <input type="radio" class="btn-check" name="httpstatus-filter" id="id_httpstatus-filter-all" value="all" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="id_httpstatus-filter-all">All</label>
+
+                </div>{% endcomment %}
+
+                <div class="btn-group btn-group-sm me-2" role="group" aria-label="Language filter">
+                    {% for name, total in enabled_pages_languages.items %}
+                    <input type="radio" class="btn-check" name="language-filter" id="id_language-filter-{{ name }}" value="{{ name }}" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="id_language-filter-{{ name }}">{{ name|title }} <sup><small class="badge text-bg-primary rounded-pill">{{ total }}</small></sup></label>
+                    {% endfor %}
+
+                    <input type="radio" class="btn-check" name="language-filter" id="id_language-filter-all" value="all" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="id_language-filter-all">All</label>
+                </div>
+                {% if not summaries.parameters.no_draft %}
+                <div class="btn-group btn-group-sm" role="group" aria-label="Publishing state filter">
+                    <input type="radio" class="btn-check" name="publish-filter" id="id_publish-filter-draft" value="draft" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="id_publish-filter-draft">Draft <sup><small class="badge text-bg-primary rounded-pill">{{ summaries.statistics.pages.draft }}</small></sup></label>
+
+                    <input type="radio" class="btn-check" name="publish-filter" id="id_publish-filter-published" value="published" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="id_publish-filter-published">Published <sup><small class="badge text-bg-primary rounded-pill">{{ total }}</small></sup></label>
+
+                    <input type="radio" class="btn-check" name="publish-filter" id="id_publish-filter-all" value="all" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="id_publish-filter-all">All</label>
+                </div>
+                {% endif %}
+            </div>
+
+            <table class="page-items table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Main title</th>
+                        <th scope="col" class="text-center">
+                            <div title="Is published">
+                                <span class="visually-hidden">Published</span>
+                                <i class="bi bi-eye"></i>
+                            </div>
+                        </th>
+                        <th scope="col" class="text-center">
+                            <div title="Is home">
+                                <span class="visually-hidden">Is home</span>
+                                <i class="bi bi-house"></i>
+                            </div>
+                        </th>
+                        <th scope="col" class="text-center">
+                            <div title="Login is required">
+                                <span class="visually-hidden">Login is required</span>
+                                <i class="bi bi-lock"></i>
+                            </div>
+                        </th>
+                        <th scope="col" class="text-center">
+                            <div title="Available in menus">
+                                <span class="visually-hidden">Available in menus</span>
+                                <i class="bi bi-diagram-2"></i>
+                            </div>
+                        </th>
+                        <th scope="col" class="text-center">
+                            <div title="Is soft root for menus">
+                                <span class="visually-hidden">Is soft root for menus</span>
+                                <i class="bi bi-dash-square"></i>
+                            </div>
+                        </th>
+                        <th scope="col">Reverse ID</th>
+                        <th scope="col">Apphook</th>
+                        <th scope="col">Template</th>
+                        <th scope="col" class="text-end">Creation</th>
+                        <th scope="col" class="text-end">Changed</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for page in summaries.objects.pages %}
+                        {% get_page_httpstatus page.language_versions as page_httpstatus %}
+                        <tr class="item-page table-primary" data-page-published="{{ page.draft|yesno:"false,true" }}" data-page-httpstatus="{{ page_httpstatus }}">
+                            <th scope="row" class="item-page-index">{{ forloop.counter }}</th>
+                            <td class="item-page-id">{{ page.page_id }}</td>
+                            <td class="item-page-main_title">{{ page.main_title }}</td>
+                            <td class="item-page-published text-center">
+                                <div title="{{ page.draft|yesno:"Draft,Published" }}">
+                                    <span class="visually-hidden">{{ page.draft|yesno:"Draft,Published" }}</span>
+                                    {{ page.draft|yesno:"<i class='bi bi-eye text-danger'></i>,<i class='bi bi-eye-fill text-success'></i>"|safe }}
+                                </div>
+                            </td>
+                            <td class="item-page-is_home text-center">
+                                <div title="{{ page.is_home|yesno:"Is a home,Is not a home" }}">
+                                    <span class="visually-hidden">{{ page.is_home|yesno:"Is a home,Is not a home" }}</span>
+                                    {{ page.is_home|yesno:"<i class='bi bi-house-fill text-success'></i>,<i class='bi bi-house text-muted'></i>"|safe }}
+                                </div>
+                            </td>
+                            <td class="item-page-login_required text-center">
+                                <div title="{{ page.login_required|yesno:"Private,Public" }}">
+                                    <span class="visually-hidden">{{ page.login_required|yesno:"Private,Public" }}</span>
+                                    {{ page.login_required|yesno:"<i class='bi bi-lock text-danger'></i>,<i class='bi bi-unlock text-muted'></i>"|safe }}
+                                </div>
+                            </td>
+                            <td class="item-page-in_navigation text-center">
+                                <div title="{{ page.in_navigation|yesno:"In menus,Not in menus" }}">
+                                    <span class="visually-hidden">{{ page.in_navigation|yesno:"In menus,Not in menus" }}</span>
+                                    {{ page.in_navigation|yesno:"<i class='bi bi-diagram-2-fill text-success'></i>,<i class='bi bi-diagram-2 text-muted'></i>"|safe }}
+                                </div>
+                            </td>
+                            <td class="item-page-soft_root text-center">
+                                <div title="{{ page.soft_root|yesno:"Is a menu soft root,Is not a menu soft root" }}">
+                                    <span class="visually-hidden">{{ page.soft_root|yesno:"Is a menu soft root,Is not a menu soft root" }}</span>
+                                    {{ page.soft_root|yesno:"<i class='bi bi-dash-square-fill text-success'></i>,<i class='bi bi-dash-square text-muted'></i>"|safe }}
+                                </div>
+                            </td>
+                            <td class="item-page-reverse_id">
+                                {% if page.reverse_id and page.reverse_id != "None" %}
+                                    <small class="font-monospace">{{ page.reverse_id }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="item-page-apphook">
+                                {% if page.application_urls and page.application_urls != "None" %}
+                                    <small class="font-monospace">{{ page.application_urls }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="item-page-template">
+                                <small class="font-monospace">{{ page.template }}</small>
+                            </td>
+                            <td class="item-page-creation text-end">
+                                <abbr class="initialism" title="{{ page.creation|iso_to_datetime|date:"Y/m/d H:i:s" }}">{{ page.creation|iso_to_datetime|date:"SHORT_DATE_FORMAT"|split:" "|join:"&nbsp;" }}</abbr>
+                            </td>
+                            <td class="item-page-changed text-end">
+                                <abbr class="initialism" title="{{ page.changed|iso_to_datetime|date:"Y/m/d H:i:s" }}">{{ page.changed|iso_to_datetime|date:"SHORT_DATE_FORMAT"|split:" "|join:"&nbsp;" }}</abbr>
+                            </td>
+                        </tr>
+
+                        {% for version in page.language_versions %}
+                            {% get_title_httpstatus version.title_id as title_ping %}
+                            <tr class="item-title" data-title-id="{{ version.title_id }}" data-page-published="{{ page.draft|yesno:"false,true" }}" data-title-published="{{ version.draft|yesno:"false,true" }}" data-title-language="{{ version.language }}" data-title-httpstatus="{% if title_ping %}{% if title_ping.is_ok %}success{% else %}error{% endif %}{% else %}none{% endif %}">
+                                <th scope="row" class="title-item-language">{{ version.language|title }}</th>
+                                <td class="title-item-id">{{ version.title_id }}</td>
+                                <td class="title-item-title">
+                                    <a href="{{ version.url }}" target="_blank">{{ version.title }}</a>
+                                </td>
+                                <td class="title-item-published text-center">
+                                    <div title="{{ version.draft|yesno:"Draft,Published" }}">
+                                        <span class="visually-hidden">{{ version.draft|yesno:"Draft,Published" }}</span>
+                                        <span>{{ version.draft|yesno:"<i class='bi bi-eye text-danger'></i>,<i class='bi bi-eye-fill text-success'></i>"|safe }}</span>
+                                    </div>
+                                    {% if title_ping %}
+                                        {% if title_ping.is_ok %}
+                                            <span class="badge rounded-pill text-bg-light text-success"><i class="bi bi-check"></i>&nbsp;{{ title_ping.status_code }}</span>
+                                        {% else %}
+                                            <span class="badge rounded-pill text-bg-danger"><i class="bi bi-fire"></i>&nbsp;{{ title_ping.status_code }}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td class="title-item-placeholders" colspan="4">
+                                    {% for pk, name in version.placeholders.items|dictsort:1 %}
+                                        <span class="font-monospace">{{ name }}</span>
+                                        {% if not forloop.last %}
+                                            <span class="font-monospace">, </span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td class="title-item-plugins" colspan="5">
+                                    {% for name in version.plugins|distinct_plugins %}
+                                        <span class="font-monospace">{{ name }}</span>
+                                        {% if not forloop.last %}
+                                            <span class="font-monospace">, </span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-end">
+            <a href="#main-content" class="btn btn-light">Back up <i class="bi bi-chevron-bar-up"></i></a>
+        </div>
+    </footer>
+    {% endspaceless %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script>
+        function toggleClass(elements, clazz) {
+            for (let element of elements) {
+                element.classList.toggle(clazz);
+            }
+        }
+
+        function handlePublishFilterChange(src, body) {
+            body.setAttribute("data-show-publishing", src.value);
+        }
+
+        function handleLanguageFilterChange(src, body) {
+            body.setAttribute("data-show-language", src.value);
+        }
+
+        function handleHttpStatusFilterChange(src, body) {
+            body.setAttribute("data-show-httpstatus", src.value);
+        }
+
+        const body = document.querySelector("body");
+
+        document.querySelectorAll('input[type=radio][name="publish-filter"]').forEach(radio => radio.addEventListener(
+            'change',
+            () => handlePublishFilterChange(radio, body)
+        ));
+
+        document.querySelectorAll('input[type=radio][name="language-filter"]').forEach(radio => radio.addEventListener(
+            'change',
+            () => handleLanguageFilterChange(radio, body)
+        ));
+
+        document.querySelectorAll('input[type=radio][name="httpstatus-filter"]').forEach(radio => radio.addEventListener(
+            'change',
+            () => handleHttpStatusFilterChange(radio, body)
+        ));
+    </script>
+
+</body>
+</html>
