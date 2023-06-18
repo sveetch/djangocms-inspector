@@ -5,7 +5,7 @@
 DjangoCMS Inspector
 ===================
 
-A set of tools to inspect a DjangoCMS project.
+Toolkit to ease some DjangoCMS usages.
 
 
 Dependancies

@@ -31,8 +31,8 @@ class FixturesSettingsTestMixin(object):
         self.tests_dir = "tests"
         self.tests_path = self.package_path / self.tests_dir
 
-        self.fixtures_dir = "data_fixtures"
-        self.fixtures_path = self.tests_path / self.fixtures_dir
+        self.datas_dir = "data_fixtures"
+        self.datas_path = self.tests_path / self.datas_dir
 
     def format(self, content):
         """
@@ -49,7 +49,7 @@ class FixturesSettingsTestMixin(object):
             PACKAGE=str(self.package_path),
             APPLICATION=str(self.application_path),
             TESTS=str(self.tests_path),
-            FIXTURES=str(self.fixtures_path),
+            DATAS=str(self.datas_path),
             VERSION=djangocms_inspector.__version__,
         )
 
