@@ -1,0 +1,8 @@
+{% extends "skeleton.html" %}
+{% load cms_tags %}
+
+{% block header-title %}{% page_attribute "page_title" %} - {{ block.super }}{% endblock header-title %}
+
+{% block body-content %}
+    {% block content %}{% placeholder "content" %}{% endblock content %}
+{% endblock body-content %}

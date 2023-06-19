@@ -157,8 +157,7 @@ Basic DjangoCMS and plugins configuration
 """
 # Available page templates
 CMS_TEMPLATES = [
-    ("pages/free.html", "Free HTML"),
-    ("pages/single_column.html", "Single column"),
+    ("pages/default.html", "Default"),
 ]
 
 # Required to enable iframes used by CMS admin modals

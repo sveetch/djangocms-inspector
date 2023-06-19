@@ -1,0 +1,10 @@
+{% extends "skeleton.html" %}
+{% load cms_tags %}
+
+{% block header-title %}{% page_attribute "page_title" %} - {{ block.super }}{% endblock header-title %}
+
+{% block body-content %}
+    <div id="test-page-content">
+        {% placeholder "content" %}
+    </div>
+{% endblock body-content %}
